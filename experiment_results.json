@@ -1,0 +1,105 @@
+{
+  "execution_time_seconds": 262.68,
+  "metrics_by_tier": {
+    "tier_1_deep_reinforcement_learning": {
+      "average_reward": -2.2125,
+      "reward_variance": 0.6436,
+      "episode_length": 80.0,
+      "success_win_rate": 0.0,
+      "convergence_episodes": 40,
+      "sample_efficiency": 0.0
+    },
+    "tier_2_search_and_planning": {
+      "astar_avg_path_length": 16.86,
+      "astar_avg_nodes_expanded": 228.57,
+      "astar_avg_search_time_ms": 19.68,
+      "backtracking_avg_path_length": 34.83,
+      "backtracking_avg_nodes_expanded": 506.17,
+      "backtracking_avg_search_time_ms": 3.15,
+      "average_optimality_gap": 1.214
+    },
+    "tier_3_cnn_perception": {
+      "accuracy": 0.9474,
+      "precision": 0.9474,
+      "recall": 1.0,
+      "f1_score": 0.973
+    },
+    "tier_4_rnn_lstm_sequence_modeling": {
+      "mae": 4.71,
+      "rmse": 5.2354,
+      "prediction_accuracy": 0.3684,
+      "behavior_classification_accuracy": 0.8421
+    },
+    "tier_5_generative_ai": {
+      "task_generation_validity": 1.0,
+      "constraint_satisfaction_rate": 1.0,
+      "hallucination_rate": 0.0,
+      "goal_interpretation_accuracy": 1.0
+    },
+    "tier_6_rag_knowledge_retrieval": {
+      "retrieval_precision": 0.8,
+      "retrieval_recall": 0.7,
+      "grounded_answer_rate": 1.0,
+      "context_relevance": 0.478
+    },
+    "tier_7_overall_hybrid_agent": {
+      "delta_win_rate (Performance_Hybrid - Performance_DRL-only)": 1.0,
+      "delta_average_reward": 22.425,
+      "delta_step_efficiency": 42.5
+    }
+  },
+  "model_ablation_comparison": {
+    "drl_only_baseline": {
+      "win_rate": 0.0,
+      "avg_reward": -4.03,
+      "avg_episode_length": 60.0
+    },
+    "search_only_astar": {
+      "solve_rate": 1.0,
+      "avg_path_length": 17.5
+    },
+    "search_plus_drl": {
+      "win_rate": 0.0,
+      "avg_reward": -1.2
+    },
+    "full_hybrid_agent": {
+      "win_rate": 1.0,
+      "avg_reward": 18.4,
+      "avg_episode_length": 17.5
+    }
+  },
+  "level_breakdown": {
+    "microban_1": {
+      "drl_only_win_rate": 0.0,
+      "drl_only_avg_reward": -1.2,
+      "search_only_solved": true,
+      "search_plus_drl_win_rate": 0.0,
+      "full_hybrid_win_rate": 1.0,
+      "full_hybrid_avg_reward": 16.84
+    },
+    "microban_2": {
+      "drl_only_win_rate": 0.0,
+      "drl_only_avg_reward": -6.7,
+      "search_only_solved": true,
+      "search_plus_drl_win_rate": 0.0,
+      "full_hybrid_win_rate": 1.0,
+      "full_hybrid_avg_reward": 18.82
+    },
+    "microban_3": {
+      "drl_only_win_rate": 0.0,
+      "drl_only_avg_reward": -1.2,
+      "search_only_solved": true,
+      "search_plus_drl_win_rate": 0.0,
+      "full_hybrid_win_rate": 1.0,
+      "full_hybrid_avg_reward": 18.82
+    },
+    "microban_4": {
+      "drl_only_win_rate": 0.0,
+      "drl_only_avg_reward": -7.0,
+      "search_only_solved": true,
+      "search_plus_drl_win_rate": 0.0,
+      "full_hybrid_win_rate": 1.0,
+      "full_hybrid_avg_reward": 19.12
+    }
+  }
+}

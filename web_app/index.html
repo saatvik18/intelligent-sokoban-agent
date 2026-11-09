@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sokoban AI Studio — Hybrid Game AI Puzzle Solver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <div class="cube-icon"></div>
+        </div>
+        <div class="brand-text">
+          <h1>Sokoban <span>AI Studio</span></h1>
+          <div class="badge-hybrid">Hybrid Game AI (Perception · Search · RAG · DRL)</div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="control-group">
+          <label for="level-select">Level:</label>
+          <select id="level-select" class="dropdown">
+            <option value="microban_1">Microban 1 (Tutorial)</option>
+            <option value="microban_2">Microban 2 (Crossroads)</option>
+            <option value="microban_3">Microban 3 (Corridor Packing)</option>
+            <option value="microban_4">Microban 4 (T-Junction)</option>
+            <option value="microban_5">Microban 5 (3-Box Challenge)</option>
+            <option value="microban_6">Microban 6 (Corner Trap)</option>
+            <option value="intermediate_1">Intermediate 1</option>
+            <option value="advanced_1">Advanced 1 (4-Box)</option>
+          </select>
+        </div>
+
+        <button id="btn-procedural" class="btn btn-secondary">
+          <span class="icon">🎲</span> Generate Random
+        </button>
+
+        <button id="btn-sound" class="btn btn-icon" title="Toggle Sound FX">
+          <span id="sound-icon">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="main-content">
+      <!-- LEFT COLUMN: GAME BOARD & PLAY CONTROLS -->
+      <section class="game-panel">
+        <div class="panel-header">
+          <div class="stats-row">
+            <div class="stat-card">
+              <span class="stat-label">Steps</span>
+              <span id="stat-steps" class="stat-val">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Pushes</span>
+              <span id="stat-pushes" class="stat-val">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Boxes on Target</span>
+              <span id="stat-boxes" class="stat-val highlight">0 / 0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Hungarian Cost</span>
+              <span id="stat-heuristic" class="stat-val">0.0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SOKOBAN BOARD CONTAINER -->
+        <div class="board-wrapper">
+          <div id="board" class="sokoban-grid"></div>
+        </div>
+
+        <!-- GAMEPLAY ACTION BAR -->
+        <div class="game-action-bar">
+          <div class="action-buttons">
+            <button id="btn-undo" class="btn btn-secondary" title="Undo Move (Z)">
+              <span class="icon">↩️</span> Undo
+            </button>
+            <button id="btn-restart" class="btn btn-secondary" title="Restart Level (R)">
+              <span class="icon">🔄</span> Restart
+            </button>
+            <button id="btn-hint" class="btn btn-primary" title="Get AI Co-Pilot Hint (H)">
+              <span class="icon">💡</span> AI Hint
+            </button>
+            <button id="btn-solve" class="btn btn-gradient" title="Watch AI Solve (Space)">
+              <span class="icon">🤖</span> AI Auto-Solve
+            </button>
+          </div>
+
+          <div class="playback-controls" id="solver-playback-bar" style="display: none;">
+            <button id="btn-play-pause" class="btn btn-icon">⏸️</button>
+            <button id="btn-step-forward" class="btn btn-icon">⏭️</button>
+            <div class="speed-selector">
+              <span>Speed:</span>
+              <button class="btn-speed active" data-speed="1.0">1x</button>
+              <button class="btn-speed" data-speed="2.0">2x</button>
+              <button class="btn-speed" data-speed="4.0">4x</button>
+            </div>
+            <button id="btn-stop-solve" class="btn btn-danger btn-sm">Stop</button>
+          </div>
+        </div>
+
+        <!-- TOUCH / VIRTUAL D-PAD CONTROLS -->
+        <div class="virtual-dpad">
+          <button class="dpad-btn dpad-up" data-action="0">▲</button>
+          <div class="dpad-middle">
+            <button class="dpad-btn dpad-left" data-action="2">◀</button>
+            <div class="dpad-center">●</div>
+            <button class="dpad-btn dpad-right" data-action="3">▶</button>
+          </div>
+          <button class="dpad-btn dpad-down" data-action="1">▼</button>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: AI CO-PILOT & REASONING DASHBOARD -->
+      <aside class="ai-panel">
+        <div class="ai-panel-header">
+          <h2>🧠 Hybrid AI Co-Pilot</h2>
+          <span class="live-pulse"></span>
+        </div>
+
+        <!-- RAG TACTICAL REASONING CARD -->
+        <div class="card rag-card">
+          <div class="card-header">
+            <span class="card-title">📚 RAG Tactical Knowledge Grounding</span>
+            <span id="rag-category-badge" class="badge">Deadlock Avoidance</span>
+          </div>
+          <div class="card-body">
+            <div class="rule-box">
+              <div class="quote-mark">“</div>
+              <p id="rag-primary-rule">Analyzing board configuration and calculating optimal target reachability...</p>
+            </div>
+            <div class="doc-reference">
+              <span class="doc-icon">📄</span>
+              <span id="rag-doc-title">Sokoban Tactical Knowledge Corpus</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- REASONING & DEADLOCK SAFETY CARD -->
+        <div class="card safety-card">
+          <div class="card-header">
+            <span class="card-title">🛡️ Reasoning & Deadlock Safety Mask</span>
+            <span id="deadlock-status-badge" class="badge badge-success">State Safe</span>
+          </div>
+          <div class="card-body">
+            <div class="mask-grid">
+              <div id="mask-up" class="mask-item safe">
+                <span class="dir">UP</span>
+                <span class="status">SAFE</span>
+              </div>
+              <div id="mask-down" class="mask-item safe">
+                <span class="dir">DOWN</span>
+                <span class="status">SAFE</span>
+              </div>
+              <div id="mask-left" class="mask-item safe">
+                <span class="dir">LEFT</span>
+                <span class="status">SAFE</span>
+              </div>
+              <div id="mask-right" class="mask-item safe">
+                <span class="dir">RIGHT</span>
+                <span class="status">SAFE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIPELINE DIAGNOSTICS & TELEMETRY -->
+        <div class="card telemetry-card">
+          <div class="card-header">
+            <span class="card-title">⚡ Multi-Tier Pipeline Telemetry</span>
+          </div>
+          <div class="card-body">
+            <div class="telemetry-item">
+              <span class="t-label">Perception (CNN Spatial Feature Norm):</span>
+              <span id="telemetry-cnn" class="t-val">11.31</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Search (A* Hungarian Bipartite Distance):</span>
+              <div class="progress-bar-container">
+                <div id="heuristic-progress" class="progress-bar" style="width: 25%;"></div>
+              </div>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">DRL Action Masking:</span>
+              <span class="t-val highlight">Enabled (Q(s,a) &larr; &minus;&infin;)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">AI Strategy Vector:</span>
+              <span id="telemetry-vector" class="t-val font-mono">[0.50, 0.20, 0.75, 1.00]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- REASONING & STEP LOG -->
+        <div class="card log-card">
+          <div class="card-header">
+            <span class="card-title">📝 Real-Time Tactical Decision Log</span>
+            <button id="btn-clear-log" class="btn btn-xs">Clear</button>
+          </div>
+          <div id="action-log" class="log-stream">
+            <div class="log-entry system">
+              <span class="time">00:00</span>
+              <span class="msg">Hybrid AI Agent initialized. Ready to plan moves.</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- WIN CELEBRATION MODAL -->
+    <div id="win-modal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-confetti">🎉</div>
+        <h2>Level Solved!</h2>
+        <p class="modal-sub">All boxes successfully placed on designated targets without deadlock.</p>
+
+        <div class="modal-stats-grid">
+          <div class="m-stat">
+            <span class="m-val" id="win-steps">0</span>
+            <span class="m-lbl">Total Steps</span>
+          </div>
+          <div class="m-stat">
+            <span class="m-val" id="win-pushes">0</span>
+            <span class="m-lbl">Box Pushes</span>
+          </div>
+          <div class="m-stat">
+            <span class="m-val highlight" id="win-optimality">Optimal</span>
+            <span class="m-lbl">Efficiency Rating</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="btn-modal-replay" class="btn btn-secondary">Replay Level</button>
+          <button id="btn-modal-next" class="btn btn-gradient">Next Level ➔</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
